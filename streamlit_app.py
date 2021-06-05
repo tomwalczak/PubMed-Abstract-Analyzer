@@ -18,4 +18,4 @@ button_state = st.button('Random Paper Please! 🤗')
 
 
 
-st.write(f'Button state{button_state}')
+st.write(f'Button state is: {button_state}')
