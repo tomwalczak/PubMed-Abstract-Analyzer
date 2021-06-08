@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
 import nltk
-nltk.download('punkt')
-from nltk import tokenize
+
+
 
 def get_abstract_results_df_nb(nb_model,class_names,full_abstract):
+    nltk.download('punkt')
+    from nltk import tokenize
     sentences = tokenize.sent_tokenize(full_abstract)
 
     sentences = clean_sents_not_starting_with_uppercase(sentences)
@@ -20,13 +22,15 @@ def get_abstract_results_df_nb(nb_model,class_names,full_abstract):
 
 
 def get_abstract_results_df(model,class_names,full_abstract):
-  sentences = tokenize.sent_tokenize(full_abstract)
+    nltk.download('punkt')
+    from nltk import tokenize
+    sentences = tokenize.sent_tokenize(full_abstract)
 
-  sentences = clean_sents_not_starting_with_uppercase(sentences)
+    sentences = clean_sents_not_starting_with_uppercase(sentences)
 
-  pred = model.predict(add_positon_feature_to_sentences(sentences))
+    pred = model.predict(add_positon_feature_to_sentences(sentences))
 
-  return get_model_preds_as_df(None,pred,sentences,class_names)
+    return get_model_preds_as_df(None,pred,sentences,class_names)
 
 def add_positon_feature_to_sentences(sentences):
   return ["POSITION_" + (np.around(line_num / len(sentences),decimals=2)*100).astype("int").astype("str") + " " + sentence for line_num, sentence in enumerate(sentences)]

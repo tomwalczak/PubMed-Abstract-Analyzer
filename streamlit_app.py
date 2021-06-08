@@ -7,23 +7,36 @@ from tensorflow import keras
 
 from helpers.abstract_helpers import get_model_preds_as_df, get_abstract_results_df_nb, preprocess_abstracts_from_file, get_abstract_markdown, get_abstract_results_df, add_positon_feature_to_sentences
 
-nb_abstract = joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
+st.set_page_config(layout="wide")
 
-saved_model_name = 'abstract_bd_conv1d_90acc'
 
-model = keras.models.load_model('./saved_models/' + saved_model_name)
+def load_models():
+  nb_abstract = joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
+
+  saved_model_name = 'abstract_bd_conv1d_90acc'
+
+  conv_abstract = keras.models.load_model('./saved_models/' + saved_model_name)
+
+  return nb_abstract, conv_abstract
+
+
+nb_abstract, conv_abstract = load_models()
 
 class_names = np.array(['BACKGROUND', 'CONCLUSIONS', 'METHODS', 'OBJECTIVE', 'RESULTS'])
 
 abstracts = preprocess_abstracts_from_file("raw_abstracts.txt")
 
-selected_abstract = random.choice(abstracts)
+
 
 st.write("""
 # PubMed Topic Transformer 🍺💊☁️🤗
 
 """)
 
+selected_abstract = ""
+
+if selected_abstract == "":
+  selected_abstract = random.choice(abstracts)
 
 # form = st.form(key='my_form')
 # name = form.text_input(label='Enter your name')
@@ -46,12 +59,14 @@ if button_state:
 form = st.form(key='my_form')
 
 
-user_abstract = form.text_area(label='Abstract text', value=selected_abstract, height=400)
+
+user_abstract = form.text_area(label='Abstract text', value=selected_abstract, height=300)
 
 submit_button = form.form_submit_button(label='Submit your own! 🤗')
 
 if submit_button:
     selected_abstract = user_abstract
+
 
 st.write("# Naive Bayes Classifier")
 
@@ -70,7 +85,7 @@ st.markdown(get_abstract_markdown(nb_abstract_results_df))
 
 st.markdown("# Convolutional Classifier with Custom Embeddings")
 
-abstract_bd_df = get_abstract_results_df(model,class_names,selected_abstract)
+abstract_bd_df = get_abstract_results_df(conv_abstract,class_names,selected_abstract)
 
 
 st.markdown(get_abstract_markdown(abstract_bd_df))
