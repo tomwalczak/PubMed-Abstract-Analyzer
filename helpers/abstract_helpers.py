@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import nltk
 import tensorflow as tf
-
+import zipfile
 
 
 def get_abstract_results_df_nb(nb_model,class_names,full_abstract):
@@ -127,6 +127,16 @@ def get_lines(filename):
   with open(filename, "r") as f:
     return f.readlines()
 
+# Credit: @mrdbourke
+def unzip_data(filename):
+  """
+  Unzips filename into the current working directory.
+  Args:
+    filename (str): a filepath to a target zip folder to be unzipped.
+  """
+  zip_ref = zipfile.ZipFile(filename, "r")
+  zip_ref.extractall()
+  zip_ref.close()
 
 # Remix of Scikit-Learn's@mrdbourke's implementation
 import itertools
@@ -350,15 +360,5 @@ def preprocess_text_add_line_position_features(filename):
 
     return abstract_samples
 
-import zipfile
 
-# Credit: @mrdbourke
-def unzip_data(filename):
-  """
-  Unzips filename into the current working directory.
-  Args:
-    filename (str): a filepath to a target zip folder to be unzipped.
-  """
-  zip_ref = zipfile.ZipFile(filename, "r")
-  zip_ref.extractall()
-  zip_ref.close()
+
