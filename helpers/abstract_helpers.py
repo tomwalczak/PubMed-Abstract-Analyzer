@@ -238,6 +238,13 @@ def model_preds_df(y_true_labels_int, y_preds, sentences, class_names):
 
   return pred_df
 
+def get_wrong_preds(preds_df):
+  wrong_preds_df = preds_df.loc[preds_df['is_pred_correct'] == False]
+  most_wrong_preds = wrong_preds_df.sort_values('pred_confidence',ascending=False)[["pred_confidence","y_true_class_name","y_pred_class_name", "sentence"]]
+  sample_wrong_preds = most_wrong_preds.sample(100)
+
+  return wrong_preds_df, most_wrong_preds, sample_wrong_preds.sort_values('pred_confidence',ascending=False)
+
 # Credit: @mrdbourke
 def create_tensorboard_callback(dir_name, experiment_name):
   """
