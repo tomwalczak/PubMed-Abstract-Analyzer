@@ -330,7 +330,6 @@ def preprocess_text_add_line_position_features(filename):
   # Loop through each line in the target file
   for line in input_lines:
       if line.startswith("###"): # check to see if the line is an ID line
-          abstract_id = line
           abstract_lines = "" # reset the abstract string if the line is an ID line
 
       elif line.isspace(): # check to see if line is a new line
