@@ -3,6 +3,9 @@ import numpy as np
 import nltk
 import tensorflow as tf
 import zipfile
+import itertools
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 
 def get_abstract_results_df_nb(nb_model,class_names,full_abstract):
@@ -139,10 +142,7 @@ def unzip_data(filename):
   zip_ref.close()
 
 # Remix of Scikit-Learn's@mrdbourke's implementation
-import itertools
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.metrics import confusion_matrix
+
 
 # Our function needs a different name to sklearn's plot_confusion_matrix
 def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_size=15, norm=False, savefig=False): 
@@ -335,25 +335,25 @@ def preprocess_text_add_line_position_features(filename):
             previous_class = "" # reset, since this is a new abstract
 
         elif line.isspace(): # check to see if line is a new line
-          abstract_line_split = abstract_lines.splitlines() # split abstract into separate lines
+            abstract_line_split = abstract_lines.splitlines() # split abstract into separate lines
 
-        # Iterate through each line in a single abstract and count them at the same time
-        for abstract_line_number, abstract_line in enumerate(abstract_line_split):
-            line_data = {} # create an empty dictionary for each line
-            target_text_split = abstract_line.split("\t") # split target label from text 
-            line_data["target"] = target_text_split[0] # get target label
-            line_data["text"] = target_text_split[1].lower() # get target text and lower it
-            line_data["line_number"] = abstract_line_number # what number line does the line appear in the abstract?
-            line_data["total_lines"] = len(abstract_line_split) - 1 # how many total lines are there in the target abstract? (start from 0)
-            line_data["text_with_pos_feature"] = "POSITION_" + (np.around(line_data["line_number"] / line_data["total_lines"], decimals=2)*100).astype("int").astype("str") + " " + line_data["text"]
-            line_data["text_with_pos_and_prev_feature"] = line_data["text_with_pos_feature"];
-            
-            if previous_class:
-                line_data["text_with_pos_and_prev_feature"] = "PREV_" + previous_class + " " + line_data["text_with_pos_and_prev_feature"]
-
-                previous_class = line_data["target"]
+            # Iterate through each line in a single abstract and count them at the same time
+            for abstract_line_number, abstract_line in enumerate(abstract_line_split):
+                line_data = {} # create an empty dictionary for each line
+                target_text_split = abstract_line.split("\t") # split target label from text 
+                line_data["target"] = target_text_split[0] # get target label
+                line_data["text"] = target_text_split[1].lower() # get target text and lower it
+                line_data["line_number"] = abstract_line_number # what number line does the line appear in the abstract?
+                line_data["total_lines"] = len(abstract_line_split) - 1 # how many total lines are there in the target abstract? (start from 0)
+                line_data["text_with_pos_feature"] = "POSITION_" + (np.around(line_data["line_number"] / line_data["total_lines"], decimals=2)*100).astype("int").astype("str") + " " + line_data["text"]
+                line_data["text_with_pos_and_prev_feature"] = line_data["text_with_pos_feature"];
                 
-                abstract_samples.append(line_data) # add line data to abstract samples list
+                if previous_class:
+                    line_data["text_with_pos_and_prev_feature"] = "PREV_" + previous_class + " " + line_data["text_with_pos_and_prev_feature"]
+
+                    previous_class = line_data["target"]
+                    
+                    abstract_samples.append(line_data) # add line data to abstract samples list
 
         else: # if the above conditions aren't fulfilled, the line contains a labelled sentence
            abstract_lines += line
