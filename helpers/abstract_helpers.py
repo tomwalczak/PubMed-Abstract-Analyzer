@@ -224,12 +224,14 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
     fig.savefig("confusion_matrix.png")
 
 
-def model_preds_df(y_true_labels_int, y_preds, sentences, class_names):
+def model_preds_df(y_true_labels_int, y_preds, preds_probs, sentences, class_names):
+  pred_classes = preds_probs.argmax(axis=1)
+
   pred_df = pd.DataFrame({
       "y_true": y_true_labels_int,
       "y_pred": y_preds,
       "y_true_class_name": [class_names[pred] for pred in y_true_labels_int],
-      "y_pred_class_name": [class_names[pred] for pred in pred_classes],
+      "y_pred_class_name": [class_names[pred] for pred in y_preds],
       "pred_confidence": preds_probs.max(axis=1),
   })
 
