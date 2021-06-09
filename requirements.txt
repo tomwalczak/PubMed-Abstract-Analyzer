@@ -4,3 +4,4 @@ joblib
 tensorflow
 nltk
 numpy
+matplotlib
