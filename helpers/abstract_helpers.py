@@ -314,51 +314,42 @@ def calculate_results(y_true, y_pred):
 
 # Credit: based on @mrdbourke's code
 def preprocess_text_add_line_position_features(filename):
-    """
-    Returns a list of dictionaries of abstract line data.
+  """
+  Returns a list of dictionaries of abstract line data.
 
-    Takes in filename, reads it contents and sorts through each line,
-    extracting things like the target label, the text of the sentnece,
-    how many sentences are in the current abstract and what sentence
-    number the target line is.
-    """
-    input_lines = get_lines(filename) # get all lines from filename
-    abstract_lines = "" # create an empty abstract
-    previous_class = "" # extra feautre for context
-    abstract_samples = [] # create an empty list of abstracts
+  Takes in filename, reads it contents and sorts through each line,
+  extracting things like the target label, the text of the sentnece,
+  how many sentences are in the current abstract and what sentence
+  number the target line is.
+  """
+  input_lines = get_lines(filename) # get all lines from filename
+  abstract_lines = "" # create an empty abstract
+  previous_class = "" # extra feautre for context
+  abstract_samples = [] # create an empty list of abstracts
 
-    # Loop through each line in the target file
-    for line in input_lines:
-        if line.startswith("###"): # check to see if the line is an ID line
-            abstract_id = line
-            abstract_lines = "" # reset the abstract string if the line is an ID line
-            previous_class = "" # reset, since this is a new abstract
+  # Loop through each line in the target file
+  for line in input_lines:
+      if line.startswith("###"): # check to see if the line is an ID line
+          abstract_id = line
+          abstract_lines = "" # reset the abstract string if the line is an ID line
 
-        elif line.isspace(): # check to see if line is a new line
-            abstract_line_split = abstract_lines.splitlines() # split abstract into separate lines
+      elif line.isspace(): # check to see if line is a new line
+          abstract_line_split = abstract_lines.splitlines() # split abstract into separate lines
 
-            # Iterate through each line in a single abstract and count them at the same time
-            for abstract_line_number, abstract_line in enumerate(abstract_line_split):
-                line_data = {} # create an empty dictionary for each line
-                target_text_split = abstract_line.split("\t") # split target label from text 
-                line_data["target"] = target_text_split[0] # get target label
-                line_data["text"] = target_text_split[1].lower() # get target text and lower it
-                line_data["line_number"] = abstract_line_number # what number line does the line appear in the abstract?
-                line_data["total_lines"] = len(abstract_line_split) - 1 # how many total lines are there in the target abstract? (start from 0)
-                line_data["text_with_pos_feature"] = "POSITION_" + (np.around(line_data["line_number"] / line_data["total_lines"], decimals=2)*100).astype("int").astype("str") + " " + line_data["text"]
-                line_data["text_with_pos_and_prev_feature"] = line_data["text_with_pos_feature"];
-                
-                if previous_class:
-                    line_data["text_with_pos_and_prev_feature"] = "PREV_" + previous_class + " " + line_data["text_with_pos_and_prev_feature"]
+          # Iterate through each line in a single abstract and count them at the same time
+          for abstract_line_number, abstract_line in enumerate(abstract_line_split):
+              line_data = {} # create an empty dictionary for each line
+              target_text_split = abstract_line.split("\t") # split target label from text 
+              line_data["target"] = target_text_split[0] # get target label
+              line_data["text"] = target_text_split[1].lower() # get target text and lower it
+              line_data["line_number"] = abstract_line_number # what number line does the line appear in the abstract?
+              line_data["total_lines"] = len(abstract_line_split) - 1 # how many total lines are there in the target abstract? (start from 0)
+              line_data["text_with_pos_feature"] = "POSITION_" + (np.around(line_data["line_number"] / line_data["total_lines"], decimals=2)*100).astype("int").astype("str") + " " + line_data["text"]
 
-                    previous_class = line_data["target"]
-                    
-                    abstract_samples.append(line_data) # add line data to abstract samples list
+                  
+              abstract_samples.append(line_data) # add line data to abstract samples list
 
-        else: # if the above conditions aren't fulfilled, the line contains a labelled sentence
-           abstract_lines += line
+      else: # if the above conditions aren't fulfilled, the line contains a labelled sentence
+          abstract_lines += line
 
-    return abstract_samples
-
-
-
+  return abstract_samples
