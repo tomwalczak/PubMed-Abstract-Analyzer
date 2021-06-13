@@ -1,5 +1,4 @@
 import streamlit as st
-# from transformers import pipeline
 
 from transformers import  DistilBertModel,DistilBertTokenizer
 from summarizer import Summarizer
@@ -19,7 +18,10 @@ from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
 distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
-# hf_summarizer = pipeline('summarization')
+# distilbartXSum66 = BartForConditionalGeneration.from_pretrained('sshleifer/distilbart-xsum-6-6')
+# bartTokenizer = BartTokenizer.from_pretrained('sshleifer/distilbart-xsum-6-6')
+
+# hf_summarizer = pipeline('summarization', model=distilbartXSum66, tokenizer=bartTokenizer)
 
 with open("./lib/punkt/PY3/english.pickle","rb") as resource:
   sent_detector = pickle.load(resource)
@@ -38,8 +40,8 @@ preprocess_text = test_text.strip().replace("\n","")
 def get_summary(full_text, model_name="T5_sum"):
     # if "T5" in model_name:
     #     return summarize_T5(full_text)
-    if "BART" in model_name:
-        return summarize_hf_pipeline(full_text)
+    # if "BART" in model_name:
+    #     return summarize_hf_pipeline(full_text)
     if "TF-IDF" in model_name:
         return summarize_tfidf(full_text)
     if "BERT" in model_name:
@@ -47,53 +49,37 @@ def get_summary(full_text, model_name="T5_sum"):
     else:
         return summarize_tfidf(full_text) 
 
-# def summarize_T5(text):
-
-#     tokenized_text = t5_tokenizer.encode("summarize: " + text, return_tensors="pt", max_length=512, truncation=True).to(device)
-
-#     summary_ids = t5_model.generate(tokenized_text,
-#                                     num_beams=4,
-#                                     no_repeat_ngram_size=2,
-#                                     min_length=150,
-#                                     max_length=250,
-#                                     early_stopping=True)
-
-#     summary = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-
-
-#     return summary
 
 def summarize_hf_pipeline(abstract):
-    return "HF Pipeline not available"
-    # abstract = abstract.replace('.', '.<eos>').replace('?', '?<eos>').replace('!', '!<eos>')
+    abstract = abstract.replace('.', '.<eos>').replace('?', '?<eos>').replace('!', '!<eos>')
 
-    # max_words_in_chunk = 510
-    # sents = abstract.split('<eos>')
-    # chunk_idx = 0
-    # chunks = []
-    # for sentence in sents:
-    #     if len(chunks) == chunk_idx + 1:
-    #         # Check if adding current sentence's words would exceed max words limit
-    #         if len(chunks[chunk_idx]) + len(sentence.split(' ')) <= max_words_in_chunk:
-    #             chunks[chunk_idx].extend(sentence.split(' '))
-    #         else:
-    #             chunk_idx += 1
-    #             # Append sentence words into the current chunk
-    #             chunks.append(sentence.split(' '))
-    #     else:
-    #         print(chunk_idx)
-    #         # Append sentence words into the current chunk
-    #         chunks.append(sentence.split(' '))
+    max_words_in_chunk = 510
+    sents = abstract.split('<eos>')
+    chunk_idx = 0
+    chunks = []
+    for sentence in sents:
+        if len(chunks) == chunk_idx + 1:
+            # Check if adding current sentence's words would exceed max words limit
+            if len(chunks[chunk_idx]) + len(sentence.split(' ')) <= max_words_in_chunk:
+                chunks[chunk_idx].extend(sentence.split(' '))
+            else:
+                chunk_idx += 1
+                # Append sentence words into the current chunk
+                chunks.append(sentence.split(' '))
+        else:
+            print(chunk_idx)
+            # Append sentence words into the current chunk
+            chunks.append(sentence.split(' '))
 
-    # # Join words back into sentences, this is that the TF pipeline expects
-    # chunks = [' '.join(chunks[chunk_idx]) for chunk_idx in range(len(chunks))]
+    # Join words back into sentences, this is that the TF pipeline expects
+    chunks = [' '.join(chunks[chunk_idx]) for chunk_idx in range(len(chunks))]
 
-    # chunk_summaries = hf_summarizer(chunks, max_length=240, min_length=120, do_sample=False)
+    chunk_summaries = hf_summarizer(chunks, max_length=240, min_length=120, do_sample=False)
 
-    # ## Merge chunk summaries and replace leading spaces
-    # summary = ' '.join([summ['summary_text'] for summ in chunk_summaries]).replace(' .', '.').replace(' !', '!').replace(' ?', '?').replace("\\","")[1:]
+    ## Merge chunk summaries and replace leading spaces
+    summary = ' '.join([summ['summary_text'] for summ in chunk_summaries]).replace(' .', '.').replace(' !', '!').replace(' ?', '?').replace("\\","")[1:]
 
-    # return summary
+    return summary
 
 def summarize_tfidf(text,top_sents_num=4):
     sentences = detect_sentences(text,sent_detector=sent_detector)

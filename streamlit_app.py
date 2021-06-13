@@ -26,7 +26,7 @@ def main():
 
   state = _get_state()
 
-  state.summary_models = ("🤖 Baseline TF-IDF","🤗 HuggingFace Facebook BART  ","🤗 BERT Extractive (BERT + K-Means)", "🤗 T5-small (abstractive, experimental)")
+  state.summary_models = ("🤖 Baseline TF-IDF","🤗 BERT Extractive (BERT + K-Means)")
 
 
 
