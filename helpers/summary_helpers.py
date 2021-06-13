@@ -16,8 +16,8 @@ from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 # device = torch.device('cpu')
 
 
-# distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
-# distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
+distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
 hf_summarizer = pipeline('summarization')
 
