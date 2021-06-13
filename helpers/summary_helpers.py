@@ -2,7 +2,7 @@ import streamlit as st
 # from transformers import pipeline
 
 from transformers import  DistilBertModel,DistilBertTokenizer
-# from summarizer import Summarizer
+from summarizer import Summarizer
 
 import pickle
 

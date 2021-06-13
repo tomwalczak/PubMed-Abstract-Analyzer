@@ -8,3 +8,4 @@ matplotlib
 torch
 transformers
 sentencepiece
+bert-extractive-summarizer
