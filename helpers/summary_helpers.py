@@ -114,7 +114,7 @@ def summarize_tfidf(text,top_sents_num=4):
 
 def summarize_BERT_extractive(text):
     
-    # model = Summarizer(custom_model=distillBert, custom_tokenizer=distillBertTokenizer)
-    # result = model(text, ratio=0.2)
-    # full = ''.join(result)
-    return "No BERT for now"
+    model = Summarizer(custom_model=distillBert, custom_tokenizer=distillBertTokenizer)
+    result = model(text, ratio=0.2)
+    full = ''.join(result)
+    return full
