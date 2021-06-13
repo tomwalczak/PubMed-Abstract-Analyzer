@@ -1,11 +1,8 @@
 import streamlit as st
-import torch
-from transformers import T5Tokenizer, T5ForConditionalGeneration
-from transformers import pipeline, DistilBertModel,DistilBertTokenizer, DistilBertConfig
+from transformers import pipeline, DistilBertModel,DistilBertTokenizer
 
 import pickle
 
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 
