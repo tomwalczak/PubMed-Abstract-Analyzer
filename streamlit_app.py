@@ -51,7 +51,7 @@ def main():
 
   render_sidebar(state)
 
-  st.write("""# Medical Abstract Analyzer 🍺 💊 📄 🔎 """)
+  st.write("""# PubMed Abstract Analyzer 🍺 💊 📄 🔎 """)
 
 
 
