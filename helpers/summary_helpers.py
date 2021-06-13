@@ -1,7 +1,7 @@
 import streamlit as st
 import torch
 from transformers import T5Tokenizer, T5ForConditionalGeneration
-from transformers import pipeline
+from transformers import pipeline, DistilBertModel,DistilBertTokenizer, DistilBertConfig
 
 import pickle
 
@@ -16,6 +16,10 @@ from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 t5_model = T5ForConditionalGeneration.from_pretrained('t5-small')
 t5_tokenizer = T5Tokenizer.from_pretrained('t5-small')
 device = torch.device('cpu')
+
+
+distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
+distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
 hf_summarizer = pipeline('summarization')
 
@@ -101,14 +105,15 @@ def summarize_tfidf(text,top_sents_num=4):
     top_sents = df[:top_sents_num]
 
     # and sort them in order in which they appear in the full text, for coherence
-    final_tidf_summary = top_sents.sort_index(axis=0)
+    final_tidf_summary = top_sents.sort_index(axis=0) 
 
     final_tidf_summary = " ".join([row["Sentence"] for _, row in final_tidf_summary.iterrows()])
 
     return final_tidf_summary
 
 def summarize_BERT_extractive(text):
-    model = Summarizer()
+    
+    model = Summarizer(custom_model=distillBert, custom_tokenizer=distillBertTokenizer)
     result = model(text, ratio=0.2)
     full = ''.join(result)
     return full
