@@ -1,71 +1,72 @@
 import pandas as pd
 import numpy as np
 import nltk
+import pickle
 import tensorflow as tf
 import zipfile
 import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
+with open("./lib/punkt/PY3/english.pickle","rb") as resource:
+  sent_detector = pickle.load(resource)
+# nltk.download('punkt')
+# from nltk import tokenize
 
-def get_abstract_results_df_nb(nb_model,class_names,full_abstract):
-    nltk.download('punkt')
-    from nltk import tokenize
-    sentences = tokenize.sent_tokenize(full_abstract)
-
-    sentences = clean_sents_not_starting_with_uppercase(sentences)
-
-    nb_preds = nb_model.predict(add_positon_feature_to_sentences(sentences))
-
-    preds_df = pd.DataFrame({
-    'sentence': sentences,
-    'y_pred_class_name': class_names[nb_preds]
-    })
-
-    return preds_df
 
 
 def get_abstract_results_df(model,class_names,full_abstract):
-    nltk.download('punkt')
-    from nltk import tokenize
-    sentences = tokenize.sent_tokenize(full_abstract)
+ 
+    sentences = sent_detector.tokenize(full_abstract)
 
     sentences = clean_sents_not_starting_with_uppercase(sentences)
 
-    pred = model.predict(add_positon_feature_to_sentences(sentences))
+    preds = model.predict(add_positon_feature_to_sentences(sentences))
 
-    return get_model_preds_as_df(None,pred,sentences,class_names)
+    return get_model_preds_as_df(None,preds,sentences,class_names)
 
 def add_positon_feature_to_sentences(sentences):
   return ["POSITION_" + (np.around(line_num / len(sentences),decimals=2)*100).astype("int").astype("str") + " " + sentence for line_num, sentence in enumerate(sentences)]
 
 
-def get_model_preds_as_df(y_true_labels_int, y_preds, sentences, class_names):
-  
-  pred_classes = y_preds.argmax(axis=1)
-  pred_conf = y_preds.max(axis=1)
+def get_model_preds_as_df(y_true_labels_int, y_preds, sentences, class_names,):
 
-  # Cover the use case for inference rather than test set
-  if y_true_labels_int:
+  # Are y_preds with probs for each class or just predicted class (1-dim)?
+  if y_preds.ndim == 2:
 
-      pred_df = pd.DataFrame({
-        "y_true": y_true_labels_int,
-        "y_pred": pred_classes,
-        "y_true_class_name": [class_names[pred] for pred in y_true_labels_int],
-        "y_pred_class_name": [class_names[pred] for pred in pred_classes],
-        "confidence": [ '{cnf}%'.format(cnf=int(conf*100)) for conf in pred_conf],
-       })
-      pred_df["is_pred_correct"] = pred_df["y_true"] == pred_df["y_pred"]
+      pred_classes = y_preds.argmax(axis=1)
+      pred_conf = y_preds.max(axis=1)
+
+      # If we have true labels (valid set)
+      if y_true_labels_int:
+
+          pred_df = pd.DataFrame({
+              "y_true": y_true_labels_int,
+              "y_pred": pred_classes,
+              "y_true_class_name": [class_names[pred] for pred in y_true_labels_int],
+              "y_pred_class_name": [class_names[pred] for pred in pred_classes],
+              "confidence": [ '{cnf}%'.format(cnf=int(conf*100)) for conf in pred_conf],
+          })
+          pred_df["is_pred_correct"] = pred_df["y_true"] == pred_df["y_pred"]
+      else: # If we don't, i.e. inference
+          pred_df = pd.DataFrame({
+              "y_pred": pred_classes,
+              "y_pred_class_name": [class_names[pred] for pred in pred_classes],
+              "confidence": [ '{cnf}%'.format(cnf=int(conf*100)) for conf in pred_conf],
+          })
+
+      pred_df["sentence"] = sentences
+
+      return pred_df
   else:
+
     pred_df = pd.DataFrame({
-        "y_pred": pred_classes,
-        "y_pred_class_name": [class_names[pred] for pred in pred_classes],
-        "confidence": [ '{cnf}%'.format(cnf=int(conf*100)) for conf in pred_conf],
+    'sentence': sentences,
+    'y_pred_class_name': class_names[y_preds]
     })
 
-  pred_df["sentence"] = sentences
+    return pred_df
 
-  return pred_df
 
 
 def clean_sents_not_starting_with_uppercase(sentences):

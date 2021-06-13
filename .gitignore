@@ -1,1 +1,4 @@
 .DS_Store
+sample_code
+*.pyc
+*.pyo
