@@ -1,12 +1,13 @@
 import streamlit as st
-from transformers import pipeline, DistilBertModel,DistilBertTokenizer
+from transformers import pipeline
+
+# from transformers import  DistilBertModel,DistilBertTokenizer
+# from summarizer import Summarizer
 
 import pickle
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
-
-from summarizer import Summarizer
 
 from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 
@@ -15,8 +16,8 @@ from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 # device = torch.device('cpu')
 
 
-distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
-distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+# distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
+# distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
 hf_summarizer = pipeline('summarization')
 
@@ -112,7 +113,7 @@ def summarize_tfidf(text,top_sents_num=4):
 
 def summarize_BERT_extractive(text):
     
-    model = Summarizer(custom_model=distillBert, custom_tokenizer=distillBertTokenizer)
-    result = model(text, ratio=0.2)
-    full = ''.join(result)
-    return full
+    # model = Summarizer(custom_model=distillBert, custom_tokenizer=distillBertTokenizer)
+    # result = model(text, ratio=0.2)
+    # full = ''.join(result)
+    return "No BERT for now"
