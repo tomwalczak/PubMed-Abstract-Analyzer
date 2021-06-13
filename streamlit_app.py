@@ -51,7 +51,7 @@ def main():
 
   render_sidebar(state)
 
-  st.write("""# Medical Abstract Analyzer 💊 📄 🔎 """)
+  st.write("""# Medical Abstract Analyzer 🍺 💊 📄 🔎 """)
 
 
 
@@ -130,7 +130,7 @@ def render_playground(state):
     state.bdown_model_name = selected_bdown_model_name
     state.bdown_df = get_abstract_results_df(state.bdown_model, state.summ_class_names, state.selected_abstract)
 
-  st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
+  # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
 
 def render_submit_abstract_form(state):
 
