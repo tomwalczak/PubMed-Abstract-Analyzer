@@ -13,9 +13,9 @@ from summarizer import Summarizer
 
 from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 
-t5_model = T5ForConditionalGeneration.from_pretrained('t5-small')
-t5_tokenizer = T5Tokenizer.from_pretrained('t5-small')
-device = torch.device('cpu')
+# t5_model = T5ForConditionalGeneration.from_pretrained('t5-small')
+# t5_tokenizer = T5Tokenizer.from_pretrained('t5-small')
+# device = torch.device('cpu')
 
 
 distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
@@ -38,30 +38,32 @@ preprocess_text = test_text.strip().replace("\n","")
 
 
 def get_summary(full_text, model_name="T5_sum"):
-    if "T5" in model_name:
-        return summarize_T5(full_text)
+    # if "T5" in model_name:
+    #     return summarize_T5(full_text)
     if "BART" in model_name:
         return summarize_hf_pipeline(full_text)
     if "TF-IDF" in model_name:
         return summarize_tfidf(full_text)
     if "BERT" in model_name:
         return summarize_BERT_extractive(full_text)
+    else:
+        return summarize_tfidf(full_text) 
 
-def summarize_T5(text):
+# def summarize_T5(text):
 
-    tokenized_text = t5_tokenizer.encode("summarize: " + text, return_tensors="pt", max_length=512, truncation=True).to(device)
+#     tokenized_text = t5_tokenizer.encode("summarize: " + text, return_tensors="pt", max_length=512, truncation=True).to(device)
 
-    summary_ids = t5_model.generate(tokenized_text,
-                                    num_beams=4,
-                                    no_repeat_ngram_size=2,
-                                    min_length=150,
-                                    max_length=250,
-                                    early_stopping=True)
+#     summary_ids = t5_model.generate(tokenized_text,
+#                                     num_beams=4,
+#                                     no_repeat_ngram_size=2,
+#                                     min_length=150,
+#                                     max_length=250,
+#                                     early_stopping=True)
 
-    summary = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+#     summary = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
 
-    return summary
+#     return summary
 
 def summarize_hf_pipeline(abstract):
     abstract = abstract.replace('.', '.<eos>').replace('?', '?<eos>').replace('!', '!<eos>')
