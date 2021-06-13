@@ -1,7 +1,7 @@
 import streamlit as st
 from transformers import pipeline
 
-from transformers import  DistilBertModel,DistilBertTokenizer
+# from transformers import  DistilBertModel,DistilBertTokenizer
 # from summarizer import Summarizer
 
 import pickle
@@ -16,8 +16,8 @@ from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 # device = torch.device('cpu')
 
 
-distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
-distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+# distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
+# distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
 hf_summarizer = pipeline('summarization')
 
