@@ -11,8 +11,6 @@ from sklearn.metrics import confusion_matrix
 # nltk.download('punkt')
 # from nltk import tokenize
 
-
-
 def get_abstract_results_df(model,sent_detector,class_names,full_abstract):
  
     sentences = sent_detector.tokenize(full_abstract)
@@ -320,10 +318,11 @@ def calculate_results(y_true, y_pred):
                     "f1": model_f1}
     return model_results
 
-# Credit: based on @mrdbourke's code
+
 def preprocess_text_add_line_position_features(filename):
   """
-  Returns a list of dictionaries of abstract line data.
+  Returns a list of dictionaries of abstract line data, with position features
+  Returns a list of full abstracts without target lables
 
   Takes in filename, reads it contents and sorts through each line,
   extracting things like the target label, the text of the sentnece,
@@ -332,13 +331,17 @@ def preprocess_text_add_line_position_features(filename):
   """
   input_lines = get_lines(filename) # get all lines from filename
   abstract_lines = "" # create an empty abstract
-  previous_class = "" # extra feautre for context
   abstract_samples = [] # create an empty list of abstracts
+  full_abstracts = []
+  current_abstract = ""
 
   # Loop through each line in the target file
   for line in input_lines:
       if line.startswith("###"): # check to see if the line is an ID line
+
+          current_abstract and full_abstracts.append(current_abstract)
           abstract_lines = "" # reset the abstract string if the line is an ID line
+          current_abstract = ""
 
       elif line.isspace(): # check to see if line is a new line
           abstract_line_split = abstract_lines.splitlines() # split abstract into separate lines
@@ -349,6 +352,7 @@ def preprocess_text_add_line_position_features(filename):
               target_text_split = abstract_line.split("\t") # split target label from text 
               line_data["target"] = target_text_split[0] # get target label
               line_data["text"] = target_text_split[1].lower() # get target text and lower it
+              current_abstract += line_data["text"]
               line_data["line_number"] = abstract_line_number # what number line does the line appear in the abstract?
               line_data["total_lines"] = len(abstract_line_split) - 1 # how many total lines are there in the target abstract? (start from 0)
               line_data["text_with_pos_feature"] = "POSITION_" + (np.around(line_data["line_number"] / line_data["total_lines"], decimals=2)*100).astype("int").astype("str") + " " + line_data["text"]
@@ -359,4 +363,4 @@ def preprocess_text_add_line_position_features(filename):
       else: # if the above conditions aren't fulfilled, the line contains a labelled sentence
           abstract_lines += line
 
-  return abstract_samples
+  return abstract_samples, full_abstracts
