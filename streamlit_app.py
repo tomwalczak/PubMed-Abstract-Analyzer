@@ -1,4 +1,5 @@
 import streamlit as st
+import pickle
 from streamlit.hashing import _CodeHasher
 from SessionState import _SessionState
 
@@ -19,6 +20,9 @@ from tensorflow import keras
 
 from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, get_abstract_results_df, add_positon_feature_to_sentences
 from helpers.summary_helpers import get_summary
+
+with open("./lib/punkt/PY3/english.pickle","rb") as resource:
+  sent_detector = pickle.load(resource)
 
 
 def main():
@@ -44,7 +48,7 @@ def main():
   state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
 
   if state.bdown_df is None:
-    state.bdown_df = get_abstract_results_df(state.bdown_model, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
 
 
   ####################################################################################
@@ -92,7 +96,7 @@ def render_sidebar(state):
   if random_abstract_btn:
     state.selected_abstract = random.choice(state.abstracts)
     state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
 
   render_submit_abstract_form(state)
 
@@ -128,7 +132,7 @@ def render_playground(state):
 
   if(state.bdown_model_name != selected_bdown_model_name):
     state.bdown_model_name = selected_bdown_model_name
-    state.bdown_df = get_abstract_results_df(state.bdown_model, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
 
   # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
 
@@ -136,7 +140,7 @@ def render_submit_abstract_form(state):
 
   form = st.sidebar.form(key='my_form')
 
-  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=250)
+  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=150)
 
 
   submit_button = form.form_submit_button(label='Submit abstract 🤖 ')

@@ -1,21 +1,19 @@
 import pandas as pd
 import numpy as np
-import nltk
-import pickle
+
 import tensorflow as tf
 import zipfile
 import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-with open("./lib/punkt/PY3/english.pickle","rb") as resource:
-  sent_detector = pickle.load(resource)
+
 # nltk.download('punkt')
 # from nltk import tokenize
 
 
 
-def get_abstract_results_df(model,class_names,full_abstract):
+def get_abstract_results_df(model,sent_detector,class_names,full_abstract):
  
     sentences = sent_detector.tokenize(full_abstract)
 
