@@ -1,6 +1,6 @@
 import streamlit as st
 
-from transformers import  DistilBertModel,DistilBertTokenizer
+from transformers import  DistilBertModel, DistilBertTokenizer
 from summarizer import Summarizer
 
 import pickle

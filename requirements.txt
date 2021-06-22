@@ -9,3 +9,8 @@ torch
 transformers
 sentencepiece
 bert-extractive-summarizer
+plotly
+spacy
+sentence_transformers
+bertopic
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.0.0/en_core_web_md-3.0.0.tar.gz
