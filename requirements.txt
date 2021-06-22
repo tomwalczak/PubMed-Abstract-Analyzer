@@ -1,14 +1,14 @@
+streamlit==0.83.0
 numpy==1.20.3
 scipy==1.4.1
 scikit-learn
 pandas
-joblib
+joblib==1.0.1
 tensorflow
 nltk
-numpy
 matplotlib
 torch
-transformers
+transformers==3.5.1
 sentencepiece
 bert-extractive-summarizer
 plotly
