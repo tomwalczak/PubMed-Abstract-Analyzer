@@ -26,7 +26,6 @@ def add_positon_feature_to_sentences(sentences):
 
 
 def get_model_preds_as_df(y_true_labels_int, y_preds, sentences, class_names,):
-
   # Are y_preds with probs for each class or just predicted class (1-dim)?
   if y_preds.ndim == 2:
 

@@ -11,9 +11,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 import plotly.express as px
 
-from bertopic import BERTopic
+# from bertopic import BERTopic
 
-topic_model = BERTopic.load('./saved_models/bert_topic_model')
+# topic_model = BERTopic.load('./saved_models/bert_topic_model')
 
 
 
