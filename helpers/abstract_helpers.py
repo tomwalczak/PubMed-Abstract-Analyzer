@@ -7,17 +7,34 @@ import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
+import requests
 
-# nltk.download('punkt')
-# from nltk import tokenize
+def get_remote_model_results(model_name,sentences):
 
-def get_abstract_results_df(model,sent_detector,class_names,full_abstract):
+  processed_sents = add_positon_feature_to_sentences(sentences)
+
+  if "Naive Bayes" in model_name: 
+    r = requests.post("http://18.219.16.19:8051/v1/nb_breakdown/predict", 
+      json={ "data": processed_sents})
+
+    return np.array(r.json()['preds'])
+
+  elif  "Conv1D" in model_name:   
+    r = requests.post("http://18.219.16.19:8051/v1/conv1d_breakdown/predict", 
+      json={ "data": processed_sents})
+
+    return np.array(r.json()['preds'])
+    
+
+def get_abstract_results_df(model_name,sent_detector,class_names,full_abstract):
  
     sentences = sent_detector.tokenize(full_abstract)
 
     sentences = clean_sents_not_starting_with_uppercase(sentences)
 
-    preds = model.predict(add_positon_feature_to_sentences(sentences))
+    preds = get_remote_model_results(model_name,sentences)
+
+    # print('Preds len:',len(preds),isinstance(preds[0],int),preds,np.array(preds))
 
     return get_model_preds_as_df(None,preds,sentences,class_names)
 

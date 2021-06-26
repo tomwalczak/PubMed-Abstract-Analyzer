@@ -45,10 +45,10 @@ def main():
   
 
   state.bdown_model_name = state.bdown_model_name or "Conv1D"
-  state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
+  # state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
 
   if state.bdown_df is None:
-    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
 
 
   ####################################################################################
@@ -57,14 +57,18 @@ def main():
 
   st.write("""# PubMed Abstract Analyzer 🍺 💊 📄 🔎 """)
 
+  st.success("""
+  *Explore how well different NLP models deal with
+  summarization, classification and claim extraction, all on one page*
+  """)
 
 
-  st.write("# 📄 Summary ")
+  st.write("# 📄 Abstract Summary ")
   st.markdown(state.summary)
 
 
 
-  st.write("# 🧐 Claims in the paper")
+  st.write("# 🧐 Claims in the abstract")
   st.markdown(""" 
   - Baclofen may represent a clinically relevant alcohol pharmacotherapy 
   - Substantial progress has recently been made in optimizing the management of cancer patients""")
@@ -80,23 +84,28 @@ def main():
 
   st.write("# ⛅️ Topics ")
 
+  st.write("## ⛅️ Add overall 3D graph ")
+
+  st.markdown(""" Please see topic modeling experiements in: 
+  [Colab Notabook](https://colab.research.google.com/drive/1zbnmjJ0LpOz7VAXoejAolgJTUW63xVw0?usp=sharing)
+  """)
 
 
   state.sync()
 
 def render_sidebar(state):
-  
-  st.sidebar.markdown("""
-  *Explore how well different NLP models deal with
-  summarization, classification and information extraction, all in one place.*
-  """)
+
+  # st.sidebar.success("""
+  # *Explore how well different NLP models deal with
+  # summarization, classification and claim extraction, all on one page*
+  # """)
 
   random_abstract_btn = st.sidebar.button('🤖 Random Abstract Please! 👀')
 
   if random_abstract_btn:
     state.selected_abstract = random.choice(state.abstracts)
     state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
 
   render_submit_abstract_form(state)
 
@@ -106,9 +115,9 @@ def render_playground(state):
   
   st.sidebar.markdown("# NLP 🤖 Playground")
 
-  st.sidebar.success("""
-  *Select from traditional ML models as well as state-of-the-art LSTM, BERT and T5 - see how they compare! *
-  """)
+  # st.sidebar.success("""
+  # *Select from traditional ML models as well as state-of-the-art LSTM, BERT and T5 - see how they compare! *
+  # """)
 
   st.sidebar.markdown("### Summarization")
 
@@ -132,7 +141,8 @@ def render_playground(state):
 
   if(state.bdown_model_name != selected_bdown_model_name):
     state.bdown_model_name = selected_bdown_model_name
-    state.bdown_df = get_abstract_results_df(state.bdown_model, sent_detector, state.summ_class_names, state.selected_abstract)
+    # state.bdown_model = load_bdown_model(selected_bdown_model_name)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
 
   # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
 
@@ -140,7 +150,7 @@ def render_submit_abstract_form(state):
 
   form = st.sidebar.form(key='my_form')
 
-  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=150)
+  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=550)
 
 
   submit_button = form.form_submit_button(label='Submit abstract 🤖 ')
@@ -150,20 +160,20 @@ def render_submit_abstract_form(state):
 
 
 ## TODO: move to helpers
-@st.cache(allow_output_mutation=True)
-def load_abd_nb():
-  return joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
-@st.cache
-def load_abd_conv1D():
-  return keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
+# @st.cache(allow_output_mutation=True)
+# def load_abd_nb():
+#   return joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
+# @st.cache
+# def load_abd_conv1D():
+#   return keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
 
 
-def load_bdown_model(model_name):
-  if "Naive Bayes" in model_name:
-    return load_abd_nb()
+# def load_bdown_model(model_name):
+#   if "Naive Bayes" in model_name:
+#     return load_abd_nb()
   
-  elif  "Conv1D" in model_name:
-    return load_abd_conv1D()
+#   elif  "Conv1D" in model_name:
+#     return load_abd_conv1D()
 
 def _get_session():
     session_id = get_report_ctx().session_id
