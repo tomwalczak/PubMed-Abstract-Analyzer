@@ -9,6 +9,7 @@ matplotlib
 torch
 transformers
 sentencepiece
+dill
 bert-extractive-summarizer
 plotly
 # spacy
