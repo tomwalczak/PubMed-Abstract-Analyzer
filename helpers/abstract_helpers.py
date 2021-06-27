@@ -9,47 +9,43 @@ from sklearn.metrics import confusion_matrix
 
 import requests
 
-def get_remote_model_results(model_name,sentences):
+model_base_url = "http://localhost:5000"
 
-  processed_sents = add_positon_feature_to_sentences(sentences)
+def get_remote_model_results(model_name,full_abstract):
 
   if "Naive Bayes" in model_name: 
-    r = requests.post("http://18.219.16.19:8051/v1/nb_breakdown/predict", 
-      json={ "data": processed_sents})
+    r = requests.post(model_base_url + "/v1/nb_breakdown/predict", 
+      json={ "data": full_abstract})
 
-    return np.array(r.json()['preds'])
 
   elif  "Conv1D" in model_name:   
-    r = requests.post("http://18.219.16.19:8051/v1/conv1d_breakdown/predict", 
-      json={ "data": processed_sents})
+    r = requests.post(model_base_url + "/v1/conv1d_breakdown/predict", 
+      json={ "data": full_abstract})
 
-    return np.array(r.json()['preds'])
+    
+  return {"preds": np.array(r.json()['preds']), "sentences":r.json()['sentences'], "class_names":r.json()['class_names']}
     
 
-def get_abstract_results_df(model_name,sent_detector,class_names,full_abstract):
- 
-    sentences = sent_detector.tokenize(full_abstract)
+def get_abstract_results_df(model_name,full_abstract):
 
-    sentences = clean_sents_not_starting_with_uppercase(sentences)
+    results = get_remote_model_results(model_name,full_abstract)
 
-    preds = get_remote_model_results(model_name,sentences)
 
-    # print('Preds len:',len(preds),isinstance(preds[0],int),preds,np.array(preds))
-
-    return get_model_preds_as_df(None,preds,sentences,class_names)
+    return get_model_preds_as_df(None,results["preds"],results["class_names"],results["sentences"])
 
 def add_positon_feature_to_sentences(sentences):
   return ["POSITION_" + (np.around(line_num / len(sentences),decimals=2)*100).astype("int").astype("str") + " " + sentence for line_num, sentence in enumerate(sentences)]
 
 
-def get_model_preds_as_df(y_true_labels_int, y_preds, sentences, class_names,):
+def get_model_preds_as_df(y_true_labels_int, y_preds, class_names,sentences):
   # Are y_preds with probs for each class or just predicted class (1-dim)?
+  pred_df = None
   if y_preds.ndim == 2:
 
       pred_classes = y_preds.argmax(axis=1)
       pred_conf = y_preds.max(axis=1)
 
-      # If we have true labels (valid set)
+      # If we have true labels (validation set)
       if y_true_labels_int:
 
           pred_df = pd.DataFrame({
@@ -66,18 +62,17 @@ def get_model_preds_as_df(y_true_labels_int, y_preds, sentences, class_names,):
               "y_pred_class_name": [class_names[pred] for pred in pred_classes],
               "confidence": [ '{cnf}%'.format(cnf=int(conf*100)) for conf in pred_conf],
           })
-
-      pred_df["sentence"] = sentences
-
-      return pred_df
+      
+      
   else:
 
     pred_df = pd.DataFrame({
-    'sentence': sentences,
-    'y_pred_class_name': class_names[y_preds]
+    'y_pred_class_name': [class_names[pred] for pred in y_preds.tolist()]
     })
 
-    return pred_df
+  pred_df["sentence"] = sentences
+
+  return pred_df
 
 
 

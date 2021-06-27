@@ -23,7 +23,7 @@ from tensorflow import keras
 from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, get_abstract_results_df, add_positon_feature_to_sentences
 from helpers.summary_helpers import get_summary
 
-# from helpers.topic_helper import detect_topic, get_word_embeddings_df, plot_topic_centroid_in_context
+from helpers.topic_helper import plot_random_topic_words
 
 with open("./lib/punkt/PY3/english.pickle","rb") as resource:
   sent_detector = pickle.load(resource)
@@ -36,10 +36,8 @@ def main():
 
   state.summary_models = ("🤖 Baseline TF-IDF","🤗 BERT Extractive (BERT + K-Means)")
 
-  state.ab_bdwn_nb_model = state.ab_bdwn_nb_model or joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
-  state.ab_bdwn_conv1D_model = state.ab_bdwn_conv1D_model or keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
-
-  state.summ_class_names = np.array(['BACKGROUND', 'CONCLUSIONS', 'METHODS', 'OBJECTIVE', 'RESULTS'])
+  # state.ab_bdwn_nb_model = state.ab_bdwn_nb_model or joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
+  # state.ab_bdwn_conv1D_model = state.ab_bdwn_conv1D_model or keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
 
   state.abstracts = state.abstracts or preprocess_abstracts_from_file("raw_abstracts.txt")
 
@@ -56,7 +54,7 @@ def main():
   # state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
 
   if state.bdown_df is None:
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
 
 
   ####################################################################################
@@ -91,19 +89,20 @@ def main():
 
 
 
-  # st.write("# ⛅️ Topics ")
+  st.write("# ⛅️ Topic modeling ")
   # topic_name, topic_words = detect_topic(state.selected_abstract)
   # st.write("Abstract topic: **{topic_name} **".format(topic_name=topic_name))
   # st.write("Relevant topic words")
   # st.code(' '.join(topic_words))
 
-  st.write("## ⛅️ Add overall 3D graph ")
 
   st.markdown(""" Please see topic modeling experiements in: 
   [Colab Notabook](https://colab.research.google.com/drive/1zbnmjJ0LpOz7VAXoejAolgJTUW63xVw0?usp=sharing)
   """)
 
-  # st.plotly_chart(plot_topic_centroid_in_context(topic_name,state.word_embeddings_df,state.fitted_pca), use_container_width=True)
+  fig = plot_random_topic_words()
+
+  st.plotly_chart(fig, use_container_width=True)
 
   state.sync()
 
@@ -119,7 +118,7 @@ def render_sidebar(state):
   if random_abstract_btn:
     state.selected_abstract = random.choice(state.abstracts)
     state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
 
   render_submit_abstract_form(state)
 
@@ -158,7 +157,7 @@ def render_playground(state):
     state.bdown_model_name = selected_bdown_model_name
 
     # state.bdown_model = load_bdown_model(selected_bdown_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, sent_detector, state.summ_class_names, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
 
 
   # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
@@ -167,13 +166,15 @@ def render_submit_abstract_form(state):
 
   form = st.sidebar.form(key='my_form')
 
-  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=550)
+  user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=500)
 
 
   submit_button = form.form_submit_button(label='Submit abstract 🤖 ')
 
   if submit_button:
       state.selected_abstract = user_abstract
+      state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
+      state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
 
 
 

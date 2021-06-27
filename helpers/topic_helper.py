@@ -15,7 +15,9 @@ import plotly.express as px
 
 # topic_model = BERTopic.load('./saved_models/bert_topic_model')
 
+word_embeddings_df = pd.read_csv('./helpers/data/word_embeddings.csv', index_col=0)
 
+topic_names = set(word_embeddings_df["topic"].tolist())
 
 nlp = spacy.load("en_core_web_md", exclude=['tagger', 'parser', 'ner', 'attribute_ruler', 'lemmatizer'])
 
@@ -34,6 +36,9 @@ def get_topic_graph_df(word_embeddings_df, topic_name ):
   return selected_word_embeddings
 
 def get_word_embeddings_df():
+  return word_embeddings_df
+
+
   topics = topic_model.get_topics()
   ## Get all relevant words associated with topics for embedding
   topic_word_list = get_list_of_words_in_all_topics()
@@ -177,3 +182,83 @@ def plot_topic_centroid_in_context(centroid_topic_name,word_embeddings_df,pca):
   fig.update_layout(showlegend=False)
 
   return fig
+
+
+def plot_random_topic_words():
+  #Pick a few topics at random
+  # selected_topic_names = random.sample(topic_names,7)
+  
+  # list_of_words = []
+  # for topic_name in selected_topic_names:
+  #   top_topic_words = extract_words_from_topic(topic_name)[:7]
+  #   topic_words, _ = get_most_similar_topic_words(topic_name,topic_model,numer_of_words = 7)
+  #   list_of_words += topic_words
+
+  random_list_of_topic_words_lists = random.sample(get_list_of_topic_words(),7)
+  topic_words = []
+  for topic_list in random_list_of_topic_words_lists:
+    for word in topic_list:
+      topic_words.append(word)
+
+  selected_word_embeddings = word_embeddings_df.loc[word_embeddings_df['word'].isin(topic_words)]
+
+
+  fig = px.scatter_3d(selected_word_embeddings, 
+                      x='comp1', y='comp2', z='comp3', 
+                      text='word', 
+                      range_x=[-4,4], range_y=[-4,4], range_z=[-4,4],  
+                      color='topic',
+                      opacity=0.7,
+                      size_max=18,
+                      
+                      )
+  fig.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+  fig.update_layout(showlegend=False)
+  return fig
+
+
+def get_list_of_topic_words():
+  return [['health', 'training', 'care', 'intervention', 'depression'],
+ ['epidural', 'morphine', 'anesthesia', 'sedation', 'analgesia'],
+ ['survival', 'chemotherapy', 'cancer', 'tumor', 'radiation'],
+ ['mg', 'postmenopausal', 'testosterone', 'women', 'pregnancy'],
+ ['teeth', 'bone', 'implants', 'dental', 'plaque'],
+ ['diet', 'weight', 'dietary', 'cholesterol', 'intake'],
+ ['eye', 'eyes', 'cataract', 'corneal', 'laser'],
+ ['fasting', 'diabetes', 'insulin', 'metformin', 'glucose'],
+ ['survival', 'chemotherapy', 'cancer', 'breast', 'tamoxifen'],
+ ['skin', 'topical', 'cure', 'treatment', 'psoriasis'],
+ ['stroke', 'infarction', 'coronary', 'pci'],
+ ['methotrexate', 'arthritis', 'rheumatoid', 'remission'],
+ ['stroke', 'training', 'acupuncture', 'treatment', 'motor'],
+ ['viral', 'hiv', 'antiretroviral', 'cmv'],
+ ['screening', 'prostate', 'prostatic', 'psa'],
+ ['cessation', 'nicotine', 'smoking', 'smokers', 'quit'],
+ ['artery', 'stent', 'angioplasty', 'stents'],
+ ['cholesterol', 'atorvastatin', 'lipoprotein'],
+ ['ckd', 'serum', 'creatinine', 'dialysis', 'renal'],
+ ['consumption', 'alcohol', 'drinking', 'intervention', 'participants'],
+ ['burn', 'ulcers', 'wound', 'healed', 'healing'],
+ ['ulcerative', 'colonoscopy', 'bowel', 'preparation', 'colitis'],
+ ['iron', 'infant', 'vitamin', 'zinc', 'infants'],
+ ['pylori', 'esomeprazole', 'helicobacter', 'therapy', 'omeprazole'],
+ ['budesonide', 'eosinophil', 'cough', 'asthma', 'inhaled'],
+ ['urinary', 'infections', 'urethral', 'catheter'],
+ ['cpap', 'melatonin', 'apnea', 'insomnia', 'sleep'],
+ ['hcv', 'ifn', 'ribavirin', 'hepatitis', 'hbv'],
+ ['pressure', 'hypertension', 'angiotensin'],
+ ['cabg', 'cardiopulmonary', 'cpb', 'bypass'],
+ ['vaccination', 'immunogenicity', 'antibody', 'vaccines', 'vaccine'],
+ ['mortality', 'hf', 'heart', 'chf', 'hrv'],
+ ['fibrillation', 'defibrillation', 'pacing', 'vt'],
+ ['rehabilitation', 'vo2', 'pulmonary', 'chronic', 'copd'],
+ ['pregabalin', 'migraine', 'headache', 'efficacy'],
+ ['disability', 'lumbar', 'cervical', 'pain', 'surgery'],
+ ['mineral', 'spine', 'bone'],
+ ['incontinence', 'pelvic'],
+ ['ventilation', 'tracheal', 'airway', 'intubation'],
+ ['fractures', 'femoral', 'fixation', 'screw', 'hip'],
+ ['tka', 'knee', 'pain', 'osteoarthritis', 'splint'],
+ ['cocaine', 'heroin', 'abstinence', 'cannabis'],
+ ['allergen', 'allergic', 'ige', 'nasal', 'allergy'],
+ ['plasmodium', 'malaria', 'falciparum', 'doxycycline']]
