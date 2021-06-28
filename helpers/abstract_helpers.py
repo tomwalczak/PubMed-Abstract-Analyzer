@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import streamlit as st
+
 
 import tensorflow as tf
 import zipfile
@@ -8,31 +8,9 @@ import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-import requests
-
-model_base_url = st.secrets["api_base_url"] 
-
-def get_remote_model_results(model_name,full_abstract):
-
-  if "Naive Bayes" in model_name: 
-    r = requests.post(model_base_url + "/v1/nb_breakdown/predict", 
-      json={ "data": full_abstract})
 
 
-  elif  "Conv1D" in model_name:   
-    r = requests.post(model_base_url + "/v1/conv1d_breakdown/predict", 
-      json={ "data": full_abstract})
-
-    
-  return {"preds": np.array(r.json()['preds']), "sentences":r.json()['sentences'], "class_names":r.json()['class_names']}
-    
-
-def get_abstract_results_df(model_name,full_abstract):
-
-    results = get_remote_model_results(model_name,full_abstract)
-
-
-    return get_model_preds_as_df(None,results["preds"],results["class_names"],results["sentences"])
+ 
 
 def add_positon_feature_to_sentences(sentences):
   return ["POSITION_" + (np.around(line_num / len(sentences),decimals=2)*100).astype("int").astype("str") + " " + sentence for line_num, sentence in enumerate(sentences)]

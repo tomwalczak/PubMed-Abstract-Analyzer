@@ -15,13 +15,16 @@ except ModuleNotFoundError:
     from streamlit.server.server import Server
 
 import numpy as np
-import joblib
+import joblib 
 import random
 
 from tensorflow import keras
 
-from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, get_abstract_results_df, add_positon_feature_to_sentences
+from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, add_positon_feature_to_sentences
+from helpers.remote_models import get_abstract_results_df_from_remote_model
 from helpers.summary_helpers import get_summary
+
+from helpers.remote_models import get_remote_model_results
 
 from helpers.topic_helper import plot_random_topic_words
 
@@ -54,7 +57,7 @@ def main():
   # state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
 
   if state.bdown_df is None:
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
 
   ####################################################################################
@@ -118,7 +121,7 @@ def render_sidebar(state):
   if random_abstract_btn:
     state.selected_abstract = random.choice(state.abstracts)
     state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
   render_submit_abstract_form(state)
 
@@ -157,7 +160,7 @@ def render_playground(state):
     state.bdown_model_name = selected_bdown_model_name
 
     # state.bdown_model = load_bdown_model(selected_bdown_model_name)
-    state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
+    state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
 
   # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
@@ -174,7 +177,7 @@ def render_submit_abstract_form(state):
   if submit_button:
       state.selected_abstract = user_abstract
       state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
-      state.bdown_df = get_abstract_results_df(state.bdown_model_name, state.selected_abstract)
+      state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
 
 
