@@ -15,7 +15,7 @@ import plotly.express as px
 
 # topic_model = BERTopic.load('./saved_models/bert_topic_model')
 
-word_embeddings_df = pd.read_csv('./helpers/data/word_embeddings.csv', index_col=0)
+word_embeddings_df = pd.read_csv('./helpers/word_embeddings.csv', index_col=0)
 
 topic_names = set(word_embeddings_df["topic"].tolist())
 
