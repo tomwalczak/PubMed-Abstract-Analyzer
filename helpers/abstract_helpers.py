@@ -9,7 +9,15 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
 
+def get_abstract_results_df(model,sent_detector,class_names,full_abstract):
+ 
+    sentences = sent_detector.tokenize(full_abstract)
 
+    sentences = clean_sents_not_starting_with_uppercase(sentences)
+
+    preds = model.predict(add_positon_feature_to_sentences(sentences))
+
+    return get_model_preds_as_df(None,preds,sentences,class_names)
  
 
 def add_positon_feature_to_sentences(sentences):
