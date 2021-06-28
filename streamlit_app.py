@@ -96,7 +96,7 @@ def main():
   # st.code(' '.join(topic_words))
 
 
-  st.markdown(""" Please see topic modeling experiements in: 
+  st.markdown(""" See topic modeling experiements in: 
   [Colab Notabook](https://colab.research.google.com/drive/1zbnmjJ0LpOz7VAXoejAolgJTUW63xVw0?usp=sharing)
   """)
 

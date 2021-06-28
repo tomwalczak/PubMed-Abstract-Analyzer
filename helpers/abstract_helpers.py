@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import streamlit as st
 
 import tensorflow as tf
 import zipfile
@@ -9,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 
 import requests
 
-model_base_url = "http://localhost:5000"
+model_base_url = st.secrets["api_base_url"] 
 
 def get_remote_model_results(model_name,full_abstract):
 
