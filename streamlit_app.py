@@ -14,17 +14,15 @@ except ModuleNotFoundError:
     from streamlit.report_thread import get_report_ctx
     from streamlit.server.server import Server
 
-import numpy as np
-import joblib 
+
 import random
 
-from tensorflow import keras
 
 from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, add_positon_feature_to_sentences
-from helpers.remote_models import get_abstract_results_df_from_remote_model
+from helpers.remote_abstract_models import get_abstract_results_df_from_remote_model, get_remote_model_results
 from helpers.summary_helpers import get_summary
 
-from helpers.remote_models import get_remote_model_results
+from helpers.remote_claim_extraction_model import get_extracted_claims_from_remote_model
 
 from helpers.topic_helper import plot_random_topic_words
 
@@ -33,7 +31,7 @@ with open("./lib/punkt/PY3/english.pickle","rb") as resource:
 
 
 def main():
-  st.set_page_config(layout="wide")
+  st.set_page_config(layout="wide", page_title="Abstract Analyzer", page_icon="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/72/twitter/282/beer-mug_1f37a.png", initial_sidebar_state="expanded",)
 
   state = _get_state()
 
@@ -59,6 +57,8 @@ def main():
   if state.bdown_df is None:
     state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
+  if state.claims_and_probs is None:
+    state.claims_and_probs = get_extracted_claims_from_remote_model(state.selected_abstract)
 
   ####################################################################################
 
@@ -75,12 +75,14 @@ def main():
   st.write("# 📄 Abstract Summary ")
   st.markdown(state.summary)
 
-
-
   st.write("# 🧐 Claims in the abstract")
-  st.markdown(""" 
-  - Baclofen may represent a clinically relevant alcohol pharmacotherapy 
-  - Substantial progress has recently been made in optimizing the management of cancer patients""")
+  if len(state.claims_and_probs[0]) > 0:
+    for idx,  (claim, probability) in enumerate(zip(state.claims_and_probs[0],state.claims_and_probs[1])):
+      st.write("{num}. 👉 {claim} (**{probability}**)".format(claim=claim,probability=probability,num=idx+1))
+  else:
+    st.write("### No claims found! 👀  🤷🏽‍♀️ ")
+    st.write("Here's what our model predicts: ")
+    st.dataframe(state.claims_and_probs[2],width=600)
 
 
 
@@ -88,17 +90,11 @@ def main():
 
   st.write("# 👩‍🔬 Abstract Breakdown")
   st.markdown(get_abstract_markdown(state.bdown_df))
-  st.write(state.bdown_df )
+  st.dataframe(state.bdown_df.drop(['y_pred'],axis=1),width=600)
 
 
 
   st.write("# ⛅️ Topic modeling ")
-  # topic_name, topic_words = detect_topic(state.selected_abstract)
-  # st.write("Abstract topic: **{topic_name} **".format(topic_name=topic_name))
-  # st.write("Relevant topic words")
-  # st.code(' '.join(topic_words))
-
-
   st.markdown(""" See topic modeling experiements in: 
   [Colab Notabook](https://colab.research.google.com/drive/1zbnmjJ0LpOz7VAXoejAolgJTUW63xVw0?usp=sharing)
   """)
@@ -111,17 +107,13 @@ def main():
 
 def render_sidebar(state):
 
-  # st.sidebar.success("""
-  # *Explore how well different NLP models deal with
-  # summarization, classification and claim extraction, all on one page*
-  # """)
-
   random_abstract_btn = st.sidebar.button('🤖 Random Abstract Please! 👀')
 
   if random_abstract_btn:
     state.selected_abstract = random.choice(state.abstracts)
     state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
     state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
+    state.claims_and_probs = get_extracted_claims_from_remote_model(state.selected_abstract)
 
   render_submit_abstract_form(state)
 
@@ -178,26 +170,9 @@ def render_submit_abstract_form(state):
       state.selected_abstract = user_abstract
       state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
       state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
+      state.claims_and_probs = get_extracted_claims_from_remote_model(state.selected_abstract)
 
 
-
-## TODO: move to helpers
-# @st.cache(allow_output_mutation=True)
-
-# def load_abd_nb():
-#   return joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
-# @st.cache
-# def load_abd_conv1D():
-#   return keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
-
-
-
-# def load_bdown_model(model_name):
-#   if "Naive Bayes" in model_name:
-#     return load_abd_nb()
-  
-#   elif  "Conv1D" in model_name:
-#     return load_abd_conv1D()
 
 
 def _get_session():
