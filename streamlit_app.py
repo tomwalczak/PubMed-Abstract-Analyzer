@@ -90,7 +90,10 @@ def main():
 
   st.write("# 👩‍🔬 Abstract Breakdown")
   st.markdown(get_abstract_markdown(state.bdown_df))
-  st.dataframe(state.bdown_df.drop(['y_pred'],axis=1),width=600)
+  if 'y_pred' in state.bdown_df.columns:
+    st.dataframe(state.bdown_df.drop(['y_pred'],axis=1),width=600)
+  else: 
+    st.dataframe(state.bdown_df,width=600)
 
 
 
