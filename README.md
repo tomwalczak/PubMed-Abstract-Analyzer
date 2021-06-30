@@ -1,4 +1,4 @@
-# PubMed Abstract Analyzer
+# PubMed Abstract Analyzer 🍺 💊 📄 🔎
 
 Explore how well different NLP models deal with summarization, classification and claim extraction, all on one page.
 
@@ -8,4 +8,5 @@ Explore how well different NLP models deal with summarization, classification an
 
 ### View the live app here: [PubMed Abstract Analyzer](https://share.streamlit.io/tomwalczak/pubmed-abstract-analyzer)
 
-![Abstract Analyzer Demo](https://mldatatwk.s3.us-east-2.amazonaws.com/gifs/PubMedAbstractAnalyzer_square.gif)
+![Abstract Analyzer Demo](https://mldatatwk.s3.us-east-2.amazonaws.com/gifs/Animated+GIF-downsized_large.gif)
+
