@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-
-
 import tensorflow as tf
 import zipfile
 import itertools
@@ -60,8 +58,6 @@ def get_model_preds_as_df(y_true_labels_int, y_preds, class_names,sentences):
   pred_df["sentence"] = sentences
 
   return pred_df
-
-
 
 def clean_sents_not_starting_with_uppercase(sentences):
     proc_sents = []
@@ -137,8 +133,6 @@ def unzip_data(filename):
   zip_ref.close()
 
 # Remix of Scikit-Learn's@mrdbourke's implementation
-
-
 # Our function needs a different name to sklearn's plot_confusion_matrix
 def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_size=15, norm=False, savefig=False): 
   """Makes a labelled confusion matrix comparing predictions and ground truth labels.
@@ -262,7 +256,6 @@ def create_tensorboard_callback(dir_name, experiment_name):
   return tensorboard_callback
 
 # Plot the validation and training data separately
-
 def plot_loss_curves(history):
   """
   Returns separate loss curves for training and validation metrics.

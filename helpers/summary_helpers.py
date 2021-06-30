@@ -10,38 +10,15 @@ import pandas as pd
 
 from .nlp_functions import detect_sentences, create_tdidf_doc_term_matrix
 
-# t5_model = T5ForConditionalGeneration.from_pretrained('t5-small')
-# t5_tokenizer = T5Tokenizer.from_pretrained('t5-small')
-# device = torch.device('cpu')
-
-
 distillBert = DistilBertModel.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
 distillBertTokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
-# distilbartXSum66 = BartForConditionalGeneration.from_pretrained('sshleifer/distilbart-xsum-6-6')
-# bartTokenizer = BartTokenizer.from_pretrained('sshleifer/distilbart-xsum-6-6')
-
-# hf_summarizer = pipeline('summarization', model=distilbartXSum66, tokenizer=bartTokenizer)
 
 with open("./lib/punkt/PY3/english.pickle","rb") as resource:
   sent_detector = pickle.load(resource)
 
-test_text ="""
-The US has "passed the peak" on new coronavirus cases, President Donald Trump said and predicted that some states would reopen this month.
-The US has over 637,000 confirmed Covid-19 cases and over 30,826 deaths, the highest for any country in the world.
-At the daily White House coronavirus briefing on Wednesday, Trump said new guidelines to reopen the country would be announced on Thursday after he speaks to governors.
-"We'll be the comeback kids, all of us," he said. "We want to get our country back."
-The Trump administration has previously fixed May 1 as a possible date to reopen the world's largest economy, but the president said some states may be able to return to normalcy earlier than that.
-"""
-
-preprocess_text = test_text.strip().replace("\n","")
-
 
 def get_summary(full_text, model_name="T5_sum"):
-    # if "T5" in model_name:
-    #     return summarize_T5(full_text)
-    # if "BART" in model_name:
-    #     return summarize_hf_pipeline(full_text)
     if "TF-IDF" in model_name:
         return summarize_tfidf(full_text)
     if "BERT" in model_name:

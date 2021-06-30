@@ -14,9 +14,7 @@ except ModuleNotFoundError:
     from streamlit.report_thread import get_report_ctx
     from streamlit.server.server import Server
 
-
 import random
-
 
 from helpers.abstract_helpers import preprocess_abstracts_from_file, get_abstract_markdown, add_positon_feature_to_sentences
 from helpers.remote_abstract_models import get_abstract_results_df_from_remote_model, get_remote_model_results
@@ -37,30 +35,20 @@ def main():
 
   state.summary_models = ("🤖 Baseline TF-IDF","🤗 BERT Extractive (BERT + K-Means)")
 
-  # state.ab_bdwn_nb_model = state.ab_bdwn_nb_model or joblib.load("./saved_models/abstract_highlight_model_nb_pos.sav")
-  # state.ab_bdwn_conv1D_model = state.ab_bdwn_conv1D_model or keras.models.load_model('./saved_models/' + 'abstract_bd_conv1d_90acc')
-
   state.abstracts = state.abstracts or preprocess_abstracts_from_file("raw_abstracts.txt")
 
   state.selected_abstract = state.selected_abstract or state.abstracts[0]
 
   state.summ_model_name = state.summ_model_name or state.summary_models[1]
   state.summary = state.summary or get_summary(state.selected_abstract, model_name=state.summ_model_name)
-  
-  # if state.word_embeddings_df is None:
-  #   state.word_embeddings_df, state.fitted_pca = get_word_embeddings_df()
 
   state.bdown_model_name = state.bdown_model_name or "Conv1D"
-
-  # state.bdown_model = state.bdown_model or load_bdown_model(state.bdown_model_name)
 
   if state.bdown_df is None:
     state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
   if state.claims_and_probs is None:
     state.claims_and_probs = get_extracted_claims_from_remote_model(state.selected_abstract)
-
-  ####################################################################################
 
   render_sidebar(state)
 
@@ -85,9 +73,6 @@ def main():
     st.dataframe(state.claims_and_probs[2],width=600)
 
 
-
-
-
   st.write("# 👩‍🔬 Abstract Breakdown")
   st.markdown(get_abstract_markdown(state.bdown_df))
   if 'y_pred' in state.bdown_df.columns:
@@ -96,11 +81,12 @@ def main():
     st.dataframe(state.bdown_df,width=600)
 
 
-
   st.write("# ⛅️ Topic modeling ")
   st.markdown(""" See topic modeling experiements in: 
   [Colab Notabook](https://colab.research.google.com/drive/1zbnmjJ0LpOz7VAXoejAolgJTUW63xVw0?usp=sharing)
   """)
+
+  st.write("A random sample of PubMed topic word embeddings:")
 
   fig = plot_random_topic_words()
 
@@ -126,10 +112,6 @@ def render_playground(state):
   
   st.sidebar.markdown("# NLP 🤖 Playground")
 
-  # st.sidebar.success("""
-  # *Select from traditional ML models as well as state-of-the-art LSTM, BERT and T5 - see how they compare! *
-  # """)
-
   st.sidebar.markdown("### Summarization")
 
   selected_summ_model = st.sidebar.selectbox(
@@ -150,22 +132,24 @@ def render_playground(state):
     index=1,
   )
 
-
   if(state.bdown_model_name != selected_bdown_model_name):
     state.bdown_model_name = selected_bdown_model_name
 
-    # state.bdown_model = load_bdown_model(selected_bdown_model_name)
     state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
 
+  # Placeholder for more models to be added
+  st.sidebar.markdown("### Claim Extraction")
+  st.sidebar.selectbox(
+  'Select model:',
+  ("🤖 Fine-tuned Conv1D, 90pc accuracy","🤖 More models coming soon!"),
+)
 
-  # st.sidebar.checkbox("Use the output of Breakdown to help with summarization")  
 
 def render_submit_abstract_form(state):
 
   form = st.sidebar.form(key='my_form')
 
   user_abstract = form.text_area(label='Copy & paste your own!', value=state.selected_abstract, height=500)
-
 
   submit_button = form.form_submit_button(label='Submit abstract 🤖 ')
 
@@ -174,8 +158,6 @@ def render_submit_abstract_form(state):
       state.summary = get_summary(state.selected_abstract, model_name=state.summ_model_name)
       state.bdown_df = get_abstract_results_df_from_remote_model(state.bdown_model_name, state.selected_abstract)
       state.claims_and_probs = get_extracted_claims_from_remote_model(state.selected_abstract)
-
-
 
 
 def _get_session():
