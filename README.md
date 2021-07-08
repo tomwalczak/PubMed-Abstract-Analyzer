@@ -6,7 +6,6 @@ Explore how well different NLP models deal with summarization, classification an
 
 2. Extract material claims from each abstract by fine tuning the first model. Dataset and inspiration from https://arxiv.org/abs/1907.00962
 
-### View the live app here: [PubMed Abstract Analyzer](https://share.streamlit.io/tomwalczak/pubmed-abstract-analyzer)
+### View the live app here: [PubMed Abstract Analyzer](http://tomwalczak.com/pubmed-abstract-analyzer/)
 
 ![Abstract Analyzer Demo](https://mldatatwk.s3.us-east-2.amazonaws.com/gifs/Animated+GIF-downsized_large.gif)
-
